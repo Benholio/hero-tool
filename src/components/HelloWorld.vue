@@ -4,17 +4,27 @@
       <v-col cols="12">
         <p>Team Slots Here</p>
         <v-row justify="center">
-          <TeamSlot id="0" />
-          <TeamSlot id="1" />
-          <TeamSlot id="2" />
-          <TeamSlot id="3" />
-          <TeamSlot id="4" />
+          <TeamSlot :id="0" />
+          <TeamSlot :id="1" />
+          <TeamSlot :id="2" />
+          <TeamSlot :id="3" />
+          <TeamSlot :id="4" />
         </v-row>
       </v-col>
     </v-row>
     <v-row class="text-center">
       <v-col cols="12">
-        <p>Hero List Here</p>
+        <Container
+          group-name="heroes"
+          behaviour="copy"
+          :get-child-payload="getChildPayload"
+        >
+          <Draggable v-for="hero in heroes" :key="hero.id">
+            <v-card>
+              {{ hero.name }}
+            </v-card>
+          </Draggable>
+        </Container>
       </v-col>
     </v-row>
 
@@ -92,18 +102,31 @@
 
 <script>
 import TeamSlot from "@/components/TeamSlot";
+import { Container, Draggable } from "vue-smooth-dnd";
+import { mapGetters, mapActions } from "vuex";
 
 export default {
   name: "HelloWorld",
-  components: { TeamSlot },
+  components: { TeamSlot, Container, Draggable },
   data: () => ({
-    teamSlots: [
-      { name: "Left Wing" },
-      { name: "Left Flank" },
-      { name: "Tank" },
-      { name: "Right Flank" },
-      { name: "Right Wing" }
-    ]
-  })
+    //
+  }),
+  computed: {
+    ...mapGetters(["slotContents", "heroes"])
+  },
+  created() {
+    const equipHero = (slotIndex, heroId) => {
+      this.equipHeroInSlot({ slotIndex, heroId });
+    };
+    window.equipHeroInSlot = (slotIndex, heroId) => {
+      equipHero(slotIndex, heroId);
+    };
+  },
+  methods: {
+    ...mapActions(["equipHeroInSlot"]),
+    getChildPayload(index) {
+      return this.heroes[index].id;
+    }
+  }
 };
 </script>
